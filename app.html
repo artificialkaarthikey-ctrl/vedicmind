@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VedicMind — Learn & Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;1,400&family=Syne:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0F0E0C;--surface:#1A1916;--surface2:#242220;--surface3:#2E2C29;--surface4:#383430;
+  --ink:#F5F2EE;--ink2:#A8A49E;--ink3:#6B6860;
+  --accent:#E8A020;--accent-l:rgba(232,160,32,0.12);--accent-d:#B87800;
+  --green:#1D9E75;--green-l:rgba(29,158,117,0.12);
+  --blue:#4A90D9;--blue-l:rgba(74,144,217,0.12);
+  --red:#D95A5A;--red-l:rgba(217,90,90,0.12);
+  --purple:#9B72CF;--purple-l:rgba(155,114,207,0.12);
+  --cyan:#38B8B8;--cyan-l:rgba(56,184,184,0.12);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --r:10px;--r-lg:14px;--r-xl:18px;
+  --ff-h:'Syne',sans-serif;--ff-b:'DM Sans',sans-serif;--ff-m:'DM Mono',monospace;
+}
+html,body{height:100%;font-family:var(--ff-b);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:230px;min-width:230px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.logo{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+.logo-wrap{display:flex;align-items:center;gap:10px}
+.logo-icon{width:34px;height:34px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-mark{font-family:var(--ff-h);font-size:16px;font-weight:600;color:var(--ink);letter-spacing:-0.3px}
+.logo-sub{font-size:10px;color:var(--accent);letter-spacing:0.8px;text-transform:uppercase;margin-top:1px}
+.nav{padding:12px 10px;flex:1;display:flex;flex-direction:column;gap:1px;overflow-y:auto}
+.nav-section{font-size:10px;color:var(--ink3);letter-spacing:0.8px;text-transform:uppercase;padding:10px 8px 4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--ink2);font-size:13px;transition:all 0.15s;border:none;background:none;width:100%;text-align:left;font-family:var(--ff-b)}
+.nav-item:hover{background:var(--surface2);color:var(--ink)}
+.nav-item.active{background:var(--accent-l);color:var(--accent)}
+.nav-item.active svg{stroke:var(--accent)}
+.sidebar-footer{padding:12px 10px;border-top:1px solid var(--border)}
+.streak-box{background:var(--accent-l);border:1px solid rgba(232,160,32,0.2);border-radius:var(--r);padding:12px 14px}
+.streak-num{font-family:var(--ff-h);font-size:22px;font-weight:600;color:var(--accent)}
+.streak-label{font-size:11px;color:var(--ink2);margin-top:1px}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-left{display:flex;flex-direction:column;gap:2px}
+.topbar-title{font-family:var(--ff-h);font-size:16px;font-weight:500;color:var(--ink)}
+.topbar-sub{font-size:11px;color:var(--ink3)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.tb-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;font-size:12.5px;font-family:var(--ff-b);color:var(--ink2);transition:all 0.15s;white-space:nowrap}
+.tb-btn:hover{background:var(--surface2);color:var(--ink);border-color:var(--border2)}
+.tb-btn.primary{background:var(--accent);color:#0F0E0C;border-color:var(--accent);font-weight:500}
+.tb-btn.primary:hover{background:var(--accent-d)}
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.page{display:none;flex:1;overflow-y:auto;padding:22px 24px}
+.page.active{display:flex;flex-direction:column}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--surface4);border-radius:10px}
+
+/* ── SHARED COMPONENTS ── */
+.badge{display:inline-block;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:500}
+.badge-gold{background:var(--accent-l);color:var(--accent)}
+.badge-green{background:var(--green-l);color:var(--green)}
+.badge-blue{background:var(--blue-l);color:var(--blue)}
+.badge-gray{background:var(--surface2);color:var(--ink3)}
+.badge-red{background:var(--red-l);color:var(--red)}
+.prog-bar{height:6px;background:var(--surface3);border-radius:100px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:100px;transition:width 1s ease}
+
+/* ── TOPICS PAGE ── */
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:26px;margin-bottom:20px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:var(--accent-l);filter:blur(60px);pointer-events:none}
+.hero-label{font-size:11px;color:var(--accent);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px}
+.hero-title{font-family:var(--ff-h);font-size:24px;font-weight:600;color:var(--ink);line-height:1.2;margin-bottom:10px}
+.hero-desc{font-size:13px;color:var(--ink2);max-width:520px;line-height:1.6}
+.hero-actions{display:flex;gap:10px;margin-top:16px}
+.topic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.topic-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;cursor:pointer;transition:all 0.2s}
+.topic-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.tc-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:18px}
+.tc-title{font-family:var(--ff-h);font-size:13px;font-weight:500;color:var(--ink);margin-bottom:4px}
+.tc-desc{font-size:12px;color:var(--ink2);line-height:1.5;margin-bottom:10px}
+.tc-footer{display:flex;align-items:center;justify-content:space-between}
+.tc-arrow{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.topic-card:hover .tc-arrow{background:var(--accent);color:#0F0E0C}
+
+/* ── VISUALIZER PAGE ── */
+.viz-layout{display:flex;height:100%;position:absolute;inset:0}
+.viz-sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.vs-section{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.8px;padding:10px 8px 4px}
+.vs-list{flex:1;overflow-y:auto;padding:10px}
+.vs-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:all 0.15s;border:none;background:none;width:100%;text-align:left;font-family:var(--ff-b)}
+.vs-item:hover{background:var(--surface2)}
+.vs-item.active{background:var(--accent-l);border:1px solid rgba(232,160,32,0.12)}
+.vs-item.active .vs-name{color:var(--accent)}
+.vs-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.vs-name{font-size:13px;color:var(--ink);font-weight:500}
+.vs-sutra{font-size:10px;color:var(--ink3);margin-top:1px}
+.viz-main{flex:1;overflow-y:auto;padding:20px 22px}
+
+/* Input panel */
+.ip-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:18px 22px;margin-bottom:16px}
+.ip-row{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.ip-field{display:flex;flex-direction:column;gap:5px}
+.ip-label{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.5px}
+.ip-input{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-size:20px;font-family:var(--ff-m);color:var(--ink);width:100px;outline:none;text-align:center;transition:border-color 0.15s}
+.ip-input:focus{border-color:var(--accent)}
+.ip-op{font-family:var(--ff-h);font-size:24px;color:var(--ink3);padding-bottom:6px;align-self:flex-end}
+.ip-btn{padding:10px 20px;border-radius:10px;background:var(--accent);border:none;cursor:pointer;font-size:13px;font-family:var(--ff-h);font-weight:500;color:#0F0E0C;transition:all 0.15s}
+.ip-btn:hover{background:var(--accent-d)}
+
+/* Method desc */
+.m-desc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:16px 20px;margin-bottom:16px}
+.m-sutra-lbl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px}
+.m-title{font-family:var(--ff-h);font-size:16px;font-weight:500;margin-bottom:6px}
+.m-body{font-size:13px;color:var(--ink2);line-height:1.7}
+
+/* Controls */
+.viz-controls{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 18px;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.vc-info{flex:1}
+.vc-step-title{font-size:13px;font-weight:500;color:var(--ink)}
+.vc-prog{height:3px;background:var(--surface3);border-radius:100px;overflow:hidden;margin-top:6px}
+.vc-prog-fill{height:100%;background:var(--accent);border-radius:100px;transition:width 0.4s ease}
+.spd-sel{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 8px;font-size:11px;font-family:var(--ff-b);color:var(--ink);cursor:pointer;outline:none}
+
+/* Stage */
+.stage{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:24px 28px;margin-bottom:16px;min-height:240px;position:relative;overflow:hidden}
+.stage::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(232,160,32,0.06),transparent 70%);pointer-events:none}
+
+/* Number blocks */
+.nb{display:inline-flex;align-items:center;justify-content:center;font-family:var(--ff-m);font-weight:500;border-radius:10px;transition:all 0.4s cubic-bezier(.4,0,.2,1)}
+.nb-lg{font-size:44px;padding:10px 18px;background:var(--surface2);border:1px solid var(--border)}
+.nb-md{font-size:28px;padding:8px 14px;background:var(--surface2);border:1px solid var(--border)}
+.nb-sm{font-size:18px;padding:6px 10px;background:var(--surface2);border:1px solid var(--border)}
+.nb-gold{background:var(--accent-l)!important;border-color:rgba(232,160,32,0.35)!important;color:var(--accent)!important}
+.nb-green{background:var(--green-l)!important;border-color:rgba(29,158,117,0.3)!important;color:var(--green)!important}
+.nb-blue{background:var(--blue-l)!important;border-color:rgba(74,144,217,0.3)!important;color:var(--blue)!important}
+.nb-red{background:var(--red-l)!important;border-color:rgba(217,90,90,0.3)!important;color:var(--red)!important}
+.nb-purple{background:var(--purple-l)!important;border-color:rgba(155,114,207,0.3)!important;color:var(--purple)!important}
+.nb-ans{background:linear-gradient(135deg,rgba(232,160,32,0.18),rgba(29,158,117,0.12))!important;border-color:var(--accent)!important;color:var(--accent)!important;box-shadow:0 0 20px rgba(232,160,32,0.15)!important}
+.eq-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.eq-sign{font-family:var(--ff-h);font-size:28px;color:var(--ink3)}
+.eq-label{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.3px;display:block;text-align:center;margin-top:3px}
+.narr{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0;font-size:13px;color:var(--ink2);line-height:1.6;transition:all 0.4s}
+.narr strong{color:var(--accent)}
+.narr .hint{color:var(--green);font-style:italic}
+.step-row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.sbox{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;flex:1;min-width:100px;transition:all 0.4s}
+.sbox.lit{background:var(--accent-l);border-color:rgba(232,160,32,0.3)}
+.sbox.lit-g{background:var(--green-l);border-color:rgba(29,158,117,0.25)}
+.sbox.lit-b{background:var(--blue-l);border-color:rgba(74,144,217,0.25)}
+.sb-lbl{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px}
+.sb-val{font-family:var(--ff-m);font-size:18px;color:var(--ink);font-weight:500}
+.sb-val.g{color:var(--gold)}.sb-val.gr{color:var(--green)}.sb-val.b{color:var(--blue)}
+.sb-note{font-size:11px;color:var(--ink3);margin-top:3px}
+
+/* Try panel */
+.try-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:18px 22px}
+.try-title{font-family:var(--ff-h);font-size:13px;font-weight:500;margin-bottom:14px}
+.try-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.try-q{font-family:var(--ff-m);font-size:20px;color:var(--ink)}
+.try-input{background:var(--surface2);border:2px solid var(--border);border-radius:10px;padding:7px 14px;font-size:20px;font-family:var(--ff-m);color:var(--ink);width:130px;outline:none;text-align:center;transition:all 0.2s}
+.try-input:focus{border-color:var(--accent)}
+.try-input.ok{border-color:var(--green);background:var(--green-l);color:var(--green)}
+.try-input.err{border-color:var(--red);background:var(--red-l);color:var(--red)}
+
+/* animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(0.75)}to{opacity:1;transform:scale(1)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(232,160,32,0)}50%{box-shadow:0 0 16px rgba(232,160,32,0.3)}}
+.anim-fade{animation:fadeUp 0.35s ease both}
+.anim-pop{animation:popIn 0.3s cubic-bezier(.4,0,.2,1) both}
+.anim-glow{animation:glow 1.8s ease infinite}
+.topic-card{animation:fadeUp 0.3s ease both}
+.topic-card:nth-child(2){animation-delay:.05s}.topic-card:nth-child(3){animation-delay:.1s}
+.topic-card:nth-child(4){animation-delay:.15s}.topic-card:nth-child(5){animation-delay:.2s}.topic-card:nth-child(6){animation-delay:.25s}
+
+/* ── SPEED DRILL ── */
+.score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px;text-align:center}
+.score-val{font-family:var(--ff-h);font-size:26px;font-weight:600;color:var(--ink)}
+.score-lbl{font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.4px;margin-top:4px}
+.drill-select{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+.drill-opt{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;cursor:pointer;transition:all 0.15s}
+.drill-opt:hover,.drill-opt.sel{border-color:var(--accent);background:var(--accent-l)}
+.drill-opt-title{font-family:var(--ff-h);font-size:13px;font-weight:500;color:var(--ink);margin-bottom:3px}
+.drill-opt-desc{font-size:12px;color:var(--ink2)}
+.drill-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:28px;text-align:center;margin-bottom:16px}
+.drill-q{font-family:var(--ff-h);font-size:40px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.drill-hint{font-size:13px;color:var(--ink3);margin-bottom:20px}
+.drill-input{background:var(--surface2);border:2px solid var(--border);border-radius:12px;padding:12px 18px;font-size:28px;font-family:var(--ff-m);color:var(--ink);text-align:center;outline:none;width:200px;transition:all 0.15s}
+.drill-input:focus{border-color:var(--accent)}
+.drill-input.correct{border-color:var(--green);background:var(--green-l);color:var(--green)}
+.drill-input.wrong{border-color:var(--red);background:var(--red-l);color:var(--red)}
+.drill-result{margin-top:12px;font-size:14px;min-height:24px}
+.timer-display{font-family:var(--ff-h);font-size:44px;font-weight:600;color:var(--accent);text-align:center;line-height:1}
+
+/* ── PROGRESS PAGE ── */
+.cert-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cert-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;text-align:center}
+.cert-icon{font-size:26px;margin-bottom:6px}
+.cert-title{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:3px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">
+    <div class="logo-wrap">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F0E0C" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <div class="logo-mark">VedicMind</div>
+        <div class="logo-sub">Learn · Visualize · Practice</div>
+      </div>
+    </div>
+  </div>
+  <div class="nav">
+    <span class="nav-section">Learn</span>
+    <button class="nav-item active" onclick="navigate('topics',this)">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Topics
+    </button>
+    <button class="nav-item" onclick="navigate('visualizer',this)">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Visualizer
+    </button>
+    <button class="nav-item" onclick="navigate('drill',this)">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Speed Drills
+    </button>
+    <span class="nav-section">Track</span>
+    <button class="nav-item" onclick="navigate('progress',this)">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      My Progress
+    </button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="streak-box">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:18px">🔥</span>
+        <div>
+          <div class="streak-num">7</div>
+          <div class="streak-label">Day streak — keep going!</div>
+        </div>
+      </div>
+      <div class="prog-bar" style="height:4px;margin-top:8px"><div class="prog-fill" style="width:70%;background:var(--accent)"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="page-title">Topics</div>
+      <div class="topbar-sub" id="page-sub">Choose what to learn today</div>
+    </div>
+    <div class="topbar-right">
+      <button class="tb-btn" onclick="navigate('visualizer',document.querySelectorAll('.nav-item')[1])">✨ Open Visualizer</button>
+      <button class="tb-btn primary" onclick="navigate('drill',document.querySelectorAll('.nav-item')[2])">⏱ Start Drill</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- ═══ TOPICS ═══ -->
+    <div class="page active" id="page-topics">
+      <div class="hero">
+        <div class="hero-label">Vedic Mathematics</div>
+        <div class="hero-title">Ancient Wisdom.<br>Modern Speed. 🧠</div>
+        <div class="hero-desc">Learn the 16 Sutras of Vedic Math — watch animated step-by-step visualizations and train with speed drills. Click any topic to see it come alive.</div>
+        <div class="hero-actions">
+          <button class="tb-btn primary" onclick="navigate('visualizer',document.querySelectorAll('.nav-item')[1])">✨ Open Visualizer →</button>
+          <button class="tb-btn" onclick="navigate('drill',document.querySelectorAll('.nav-item')[2])">⏱ Try Speed Drill</button>
+        </div>
+      </div>
+
+      <div style="font-family:var(--ff-h);font-size:12px;color:var(--ink2);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px">Choose a topic to visualize</div>
+      <div class="topic-grid">
+        <div class="topic-card" onclick="goViz('nikhilam')">
+          <div class="tc-icon" style="background:var(--accent-l)">✖️</div>
+          <div class="tc-title">Fast Multiplication</div>
+          <div class="tc-desc">Nikhilam & Vertically Crosswise. Multiply 2-digit numbers near 100 mentally in seconds.</div>
+          <div class="tc-footer"><span class="badge badge-green">Beginner</span><div class="tc-arrow"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+        </div>
+        <div class="topic-card" onclick="goViz('square5')">
+          <div class="tc-icon" style="background:var(--purple-l)">²</div>
+          <div class="tc-title">Squaring Numbers</div>
+          <div class="tc-desc">Square numbers ending in 5, near 50, near 100. Yavadunam sutra makes squaring instant.</div>
+          <div class="tc-footer"><span class="badge badge-blue">Intermediate</span><div class="tc-arrow"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+        </div>
+        <div class="topic-card" onclick="goViz('div9')">
+          <div class="tc-icon" style="background:var(--green-l)">➗</div>
+          <div class="tc-title">Division Shortcuts</div>
+          <div class="tc-desc">Paravartya Yojayet sutra. Divide by 9, 11, or near-base numbers effortlessly.</div>
+          <div class="tc-footer"><span class="badge badge-blue">Intermediate</span><div class="tc-arrow"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+        </div>
+        <div class="topic-card" onclick="goViz('complement')">
+          <div class="tc-icon" style="background:var(--blue-l)">➕</div>
+          <div class="tc-title">Addition & Subtraction</div>
+          <div class="tc-desc">Left-to-right computation and complement method. Add columns 3× faster.</div>
+          <div class="tc-footer"><span class="badge badge-green">Beginner</span><div class="tc-arrow"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+        </div>
+        <div class="topic-card" onclick="goViz('crosswise')">
+          <div class="tc-icon" style="background:var(--red-l)">✖️</div>
+          <div class="tc-title">Vertically Crosswise</div>
+          <div class="tc-desc">Universal 2-digit multiplication. Works for any numbers — three elegant steps.</div>
+          <div class="tc-footer"><span class="badge badge-gold">Advanced</span><div class="tc-arrow"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+        </div>
+        <div class="topic-card" onclick="goViz('yavadunam')">
+          <div class="tc-icon" style="background:var(--accent-l)">🔢</div>
+          <div class="tc-title">Digital Roots & Yavadunam</div>
+          <div class="tc-desc">Casting out nines, Yavadunam squaring near 100. Verify answers instantly.</div>
+          <div class="tc-footer"><span class="badge badge-green">Beginner</span><div class="tc-arrow"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div></div>
+        </div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px">
+        <div style="font-family:var(--ff-h);font-size:13px;font-weight:500;color:var(--ink);margin-bottom:12px">⚡ 16 Vedic Sutras — Quick Reference</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px">
+          <div style="font-size:12px;color:var(--ink2);padding:6px 10px;background:var(--surface2);border-radius:6px">1. Ekadhikena Purvena — By one more than the previous</div>
+          <div style="font-size:12px;color:var(--ink2);padding:6px 10px;background:var(--surface2);border-radius:6px">2. Nikhilam — All from 9, last from 10</div>
+          <div style="font-size:12px;color:var(--ink2);padding:6px 10px;background:var(--surface2);border-radius:6px">3. Urdhva-Tiryagbyham — Vertically and crosswise</div>
+          <div style="font-size:12px;color:var(--ink2);padding:6px 10px;background:var(--surface2);border-radius:6px">4. Paravartya Yojayet — Transpose and adjust</div>
+          <div style="font-size:12px;color:var(--ink2);padding:6px 10px;background:var(--surface2);border-radius:6px">5. Shunyam Samyasamuccaye — If the sum is zero</div>
+          <div style="font-size:12px;color:var(--ink2);padding:6px 10px;background:var(--surface2);border-radius:6px">6. Anurupye — Proportionality</div>
+          <div style="font-size:12px;color:var(--ink2);padding:6px 10px;background:var(--surface2);border-radius:6px">7. Sankalana-vyavakalanabhyam — By addition and subtraction</div>
+          <div style="font-size:12px;color:var(--ink2);padding:6px 10px;background:var(--surface2);border-radius:6px">8. Yavadunam — By the deficiency</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ VISUALIZER ═══ -->
+    <div class="page" id="page-visualizer" style="padding:0;position:relative">
+      <div class="viz-layout">
+        <div class="viz-sidebar">
+          <div style="padding:14px 10px 6px"><div style="font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.8px;padding:0 8px">Multiplication</div></div>
+          <div class="vs-list">
+            <button class="vs-item active" id="vs-nikhilam" onclick="loadMethod('nikhilam',this)">
+              <div class="vs-icon" style="background:var(--accent-l)">✖️</div>
+              <div><div class="vs-name">Nikhilam</div><div class="vs-sutra">Near-base method</div></div>
+            </button>
+            <button class="vs-item" id="vs-crosswise" onclick="loadMethod('crosswise',this)">
+              <div class="vs-icon" style="background:var(--blue-l)">✖️</div>
+              <div><div class="vs-name">Vertically Crosswise</div><div class="vs-sutra">Ūrdhva-Tiryagbhyām</div></div>
+            </button>
+            <button class="vs-item" id="vs-base10" onclick="loadMethod('base10',this)">
+              <div class="vs-icon" style="background:var(--cyan-l)">✖️</div>
+              <div><div class="vs-name">Near 10 Method</div><div class="vs-sutra">Ekadhikena Purvena</div></div>
+            </button>
+            <div style="font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.8px;padding:10px 18px 4px">Squaring</div>
+            <button class="vs-item" id="vs-square5" onclick="loadMethod('square5',this)">
+              <div class="vs-icon" style="background:var(--purple-l)">²</div>
+              <div><div class="vs-name">Squares of X5</div><div class="vs-sutra">Ending in 5 shortcut</div></div>
+            </button>
+            <button class="vs-item" id="vs-yavadunam" onclick="loadMethod('yavadunam',this)">
+              <div class="vs-icon" style="background:var(--green-l)">²</div>
+              <div><div class="vs-name">Yavadunam</div><div class="vs-sutra">Near 100 squaring</div></div>
+            </button>
+            <div style="font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.8px;padding:10px 18px 4px">Division</div>
+            <button class="vs-item" id="vs-div9" onclick="loadMethod('div9',this)">
+              <div class="vs-icon" style="background:var(--red-l)">➗</div>
+              <div><div class="vs-name">Division by 9</div><div class="vs-sutra">Digit sum method</div></div>
+            </button>
+            <button class="vs-item" id="vs-div11" onclick="loadMethod('div11',this)">
+              <div class="vs-icon" style="background:var(--accent-l)">➗</div>
+              <div><div class="vs-name">Division by 11</div><div class="vs-sutra">Alternating sums</div></div>
+            </button>
+            <div style="font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.8px;padding:10px 18px 4px">Addition</div>
+            <button class="vs-item" id="vs-complement" onclick="loadMethod('complement',this)">
+              <div class="vs-icon" style="background:var(--blue-l)">➕</div>
+              <div><div class="vs-name">Complement Method</div><div class="vs-sutra">Near 100 addition</div></div>
+            </button>
+          </div>
+        </div>
+        <div class="viz-main">
+          <div class="ip-panel" id="ip-panel"></div>
+          <div class="m-desc" id="m-desc"></div>
+          <div class="viz-controls">
+            <div class="vc-info">
+              <div class="vc-step-title" id="vc-step-title">Step 1</div>
+              <div class="vc-prog"><div class="vc-prog-fill" id="vc-prog" style="width:0%"></div></div>
+            </div>
+            <select class="spd-sel" id="spd-sel"><option value="900">Normal</option><option value="450">Fast</option><option value="1800">Slow</option></select>
+            <button class="tb-btn" id="prev-btn" onclick="prevStep()" disabled>← Prev</button>
+            <button class="tb-btn primary" id="next-btn" onclick="nextStep()">Next →</button>
+            <button class="tb-btn" onclick="autoPlay()" id="auto-btn">▶ Auto</button>
+          </div>
+          <div class="stage" id="stage"></div>
+          <div class="try-panel" id="try-panel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SPEED DRILLS ═══ -->
+    <div class="page" id="page-drill">
+      <div id="drill-setup">
+        <div style="font-family:var(--ff-h);font-size:19px;font-weight:500;color:var(--ink);margin-bottom:5px">Speed Drills ⏱</div>
+        <div style="font-size:13px;color:var(--ink2);margin-bottom:20px">Train your mental math speed. Build fluency with timed practice.</div>
+        <div class="score-grid">
+          <div class="score-card"><div class="score-val" id="best-score">—</div><div class="score-lbl">Best score</div></div>
+          <div class="score-card"><div class="score-val" id="best-streak">0</div><div class="score-lbl">Best streak</div></div>
+          <div class="score-card"><div class="score-val" id="total-done">0</div><div class="score-lbl">Total drills</div></div>
+          <div class="score-card"><div class="score-val" id="avg-time">—</div><div class="score-lbl">Avg time/q</div></div>
+        </div>
+        <div style="font-family:var(--ff-h);font-size:12px;color:var(--ink2);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">Choose drill type</div>
+        <div class="drill-select">
+          <div class="drill-opt sel" data-type="multiplication" onclick="selectDrill(this,'multiplication')">
+            <div class="drill-opt-title">✖️ Multiplication</div>
+            <div class="drill-opt-desc">2-digit × 2-digit, near-base</div>
+          </div>
+          <div class="drill-opt" data-type="squares" onclick="selectDrill(this,'squares')">
+            <div class="drill-opt-title">² Squaring</div>
+            <div class="drill-opt-desc">Numbers ending in 5, near 100</div>
+          </div>
+          <div class="drill-opt" data-type="addition" onclick="selectDrill(this,'addition')">
+            <div class="drill-opt-title">➕ Addition</div>
+            <div class="drill-opt-desc">3-digit rapid left-to-right</div>
+          </div>
+          <div class="drill-opt" data-type="division" onclick="selectDrill(this,'division')">
+            <div class="drill-opt-title">➗ Division by 9</div>
+            <div class="drill-opt-desc">Divide by 9, 11, or 99</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:18px">
+          <div style="font-size:13px;color:var(--ink2)">Questions:</div>
+          <select id="q-count" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;font-family:var(--ff-b);color:var(--ink);cursor:pointer"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option></select>
+          <div style="font-size:13px;color:var(--ink2);margin-left:6px">Difficulty:</div>
+          <select id="difficulty" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px;font-family:var(--ff-b);color:var(--ink);cursor:pointer"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select>
+        </div>
+        <button class="tb-btn primary" onclick="startDrill()" style="padding:11px 26px;font-size:14px">Start Drill →</button>
+      </div>
+
+      <div id="drill-active" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          <div>
+            <div style="font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.4px">Question <span id="q-num">1</span> of <span id="q-total">10</span></div>
+            <div style="font-size:13px;color:var(--ink2);margin-top:2px" id="drill-type-label">Multiplication</div>
+          </div>
+          <div><div class="timer-display" id="timer">00:00</div><div style="font-size:11px;color:var(--ink3);text-align:center;margin-top:2px">elapsed</div></div>
+          <div style="text-align:right">
+            <div style="font-size:11px;color:var(--ink3)">Score</div>
+            <div style="font-family:var(--ff-h);font-size:22px;color:var(--green)"><span id="score-correct">0</span>/<span id="score-total">0</span></div>
+          </div>
+        </div>
+        <div class="drill-card">
+          <div class="drill-q" id="drill-question">97 × 98</div>
+          <div class="drill-hint" id="drill-hint">Think: both near 100</div>
+          <input class="drill-input" id="drill-ans" type="number" placeholder="?" autocomplete="off" onkeydown="checkDrillKey(event)">
+          <div class="drill-result" id="drill-result"></div>
+          <div style="margin-top:18px;display:flex;gap:10px;justify-content:center">
+            <button onclick="checkAnswer()" class="tb-btn primary" style="padding:9px 22px">Check ↵</button>
+            <button onclick="skipQuestion()" class="tb-btn" style="padding:9px 14px">Skip →</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="q-dots"></div>
+      </div>
+
+      <div id="drill-results" style="display:none">
+        <div style="text-align:center;padding:36px 20px;max-width:480px;margin:0 auto">
+          <div style="font-size:48px;margin-bottom:10px" id="result-emoji">🎉</div>
+          <div style="font-family:var(--ff-h);font-size:30px;color:var(--ink);margin-bottom:5px" id="result-score"></div>
+          <div style="font-size:14px;color:var(--ink2);margin-bottom:24px" id="result-msg"></div>
+          <div class="score-grid" style="margin-bottom:20px">
+            <div class="score-card"><div class="score-val" id="r-correct">0</div><div class="score-lbl">Correct</div></div>
+            <div class="score-card"><div class="score-val" id="r-wrong">0</div><div class="score-lbl">Wrong</div></div>
+            <div class="score-card"><div class="score-val" id="r-time">0s</div><div class="score-lbl">Total time</div></div>
+            <div class="score-card"><div class="score-val" id="r-avg">0s</div><div class="score-lbl">Avg/question</div></div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:center">
+            <button class="tb-btn primary" onclick="startDrill()" style="padding:10px 20px">Try Again</button>
+            <button class="tb-btn" onclick="resetDrill()" style="padding:10px 20px">Change Settings</button>
+            <button class="tb-btn" onclick="navigate('visualizer',document.querySelectorAll('.nav-item')[1])" style="padding:10px 20px">Watch Visualizer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PROGRESS ═══ -->
+    <div class="page" id="page-progress">
+      <div class="score-grid">
+        <div class="score-card"><div class="score-val" style="color:var(--accent)">7</div><div class="score-lbl">Day streak</div></div>
+        <div class="score-card"><div class="score-val" style="color:var(--green)">3</div><div class="score-lbl">Topics mastered</div></div>
+        <div class="score-card"><div class="score-val">48</div><div class="score-lbl">Problems solved</div></div>
+        <div class="score-card"><div class="score-val" style="color:var(--purple)">82%</div><div class="score-lbl">Accuracy</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px">
+          <div style="font-family:var(--ff-h);font-size:13px;font-weight:500;margin-bottom:14px">Topic Mastery</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>Fast Multiplication</span><span style="color:var(--green)">85%</span></div><div class="prog-bar"><div class="prog-fill" style="width:85%;background:var(--green)"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>Squaring Numbers</span><span style="color:var(--accent)">70%</span></div><div class="prog-bar"><div class="prog-fill" style="width:70%;background:var(--accent)"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>Addition Tricks</span><span style="color:var(--green)">92%</span></div><div class="prog-bar"><div class="prog-fill" style="width:92%;background:var(--green)"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>Division Shortcuts</span><span style="color:var(--blue)">45%</span></div><div class="prog-bar"><div class="prog-fill" style="width:45%;background:var(--blue)"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>Vertically Crosswise</span><span style="color:var(--ink3)">30%</span></div><div class="prog-bar"><div class="prog-fill" style="width:30%;background:var(--ink3)"></div></div></div>
+          </div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px">
+          <div style="font-family:var(--ff-h);font-size:13px;font-weight:500;margin-bottom:14px">Weekly Activity</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;height:110px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%"><div style="flex:1;display:flex;align-items:flex-end;width:100%"><div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:40%"></div></div><span style="font-size:10px;color:var(--ink3)">M</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%"><div style="flex:1;display:flex;align-items:flex-end;width:100%"><div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:65%"></div></div><span style="font-size:10px;color:var(--ink3)">T</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%"><div style="flex:1;display:flex;align-items:flex-end;width:100%"><div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:80%"></div></div><span style="font-size:10px;color:var(--ink3)">W</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%"><div style="flex:1;display:flex;align-items:flex-end;width:100%"><div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:55%"></div></div><span style="font-size:10px;color:var(--ink3)">T</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%"><div style="flex:1;display:flex;align-items:flex-end;width:100%"><div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:90%"></div></div><span style="font-size:10px;color:var(--ink3)">F</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%"><div style="flex:1;display:flex;align-items:flex-end;width:100%"><div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:70%"></div></div><span style="font-size:10px;color:var(--ink3)">S</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%"><div style="flex:1;display:flex;align-items:flex-end;width:100%"><div style="width:100%;background:var(--surface3);border-radius:4px 4px 0 0;height:15%"></div></div><span style="font-size:10px;color:var(--accent)">S</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="font-family:var(--ff-h);font-size:13px;font-weight:500;color:var(--ink);margin-bottom:12px">Certifications</div>
+      <div class="cert-grid">
+        <div class="cert-card"><div class="cert-icon">🥇</div><div class="cert-title">Multiplication Master</div><div class="cert-status"><span class="badge badge-gold">Earned</span></div></div>
+        <div class="cert-card"><div class="cert-icon">⚡</div><div class="cert-title">Speed Demon</div><div class="cert-status"><span class="badge badge-green">Earned</span></div></div>
+        <div class="cert-card"><div class="cert-icon">🎯</div><div class="cert-title">Accuracy King</div><div class="cert-status"><span class="badge badge-blue">In Progress</span></div></div>
+        <div class="cert-card"><div class="cert-icon">🧮</div><div class="cert-title">Division Wizard</div><div class="cert-status"><span class="badge badge-gray">Locked</span></div></div>
+        <div class="cert-card"><div class="cert-icon">²</div><div class="cert-title">Square Root Ninja</div><div class="cert-status"><span class="badge badge-gray">Locked</span></div></div>
+        <div class="cert-card"><div class="cert-icon">🏆</div><div class="cert-title">Vedic Champion</div><div class="cert-status"><span class="badge badge-gray">Locked</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+// ── NAVIGATION ──
+function navigate(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const titles = {topics:'Topics',visualizer:'Method Visualizer',drill:'Speed Drills',progress:'My Progress'};
+  const subs = {topics:'Choose what to learn today',visualizer:'Animated step-by-step Vedic method walkthrough',drill:'Train your mental calculation speed',progress:'Track your journey and achievements'};
+  document.getElementById('page-title').textContent = titles[page] || '';
+  document.getElementById('page-sub').textContent = subs[page] || '';
+  if (page === 'visualizer' && !vizInited) { vizInited = true; loadMethod('nikhilam', document.getElementById('vs-nikhilam')); }
+}
+
+function goViz(method) {
+  navigate('visualizer', document.querySelectorAll('.nav-item')[1]);
+  setTimeout(() => loadMethod(method, document.getElementById('vs-' + method)), 100);
+}
+
+// ── DRILL ENGINE ──
+let drillType = 'multiplication', drillQuestions = [], drillIdx = 0, drillCorrect = 0, timerInterval = null, drillStart = 0;
+let drillStats = {correct:0, wrong:0, start:0};
+
+function selectDrill(el, type) {
+  document.querySelectorAll('.drill-opt').forEach(d => d.classList.remove('sel'));
+  el.classList.add('sel');
+  drillType = type;
+}
+
+function genQuestion(type, diff) {
+  const r = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+  const easy = diff==='easy', hard = diff==='hard';
+  switch(type) {
+    case 'multiplication': {
+      const a = easy?r(11,49):hard?r(51,99):r(21,79);
+      const b = easy?r(11,49):hard?r(51,99):r(21,79);
+      return {q:`${a} × ${b}`, ans:a*b, hint:(a>90&&b>90)?'Both near 100 — Nikhilam!':'Use Vertically Crosswise'};
+    }
+    case 'squares': {
+      const t = r(easy?1:hard?5:2, easy?5:hard?9:7);
+      const n = t*10+5;
+      return {q:`${n}²`, ans:n*n, hint:`${t} × ${t+1} then | 25`};
+    }
+    case 'addition': {
+      const a = easy?r(10,99):hard?r(100,999):r(50,499);
+      const b = easy?r(10,99):hard?r(100,999):r(50,499);
+      return {q:`${a} + ${b}`, ans:a+b, hint:'Left to right — hundreds first'};
+    }
+    case 'division': {
+      const dvs = [9,11,99][r(0,2)];
+      const q = r(easy?2:hard?10:5, easy?50:hard?200:100);
+      return {q:`${q*dvs} ÷ ${dvs}`, ans:q, hint:`Dividing by ${dvs}`};
+    }
+    default: return {q:'1+1',ans:2,hint:''};
+  }
+}
+
+function startDrill() {
+  const count = parseInt(document.getElementById('q-count').value);
+  const diff = document.getElementById('difficulty').value;
+  drillQuestions = Array.from({length:count}, () => genQuestion(drillType, diff));
+  drillIdx=0; drillCorrect=0;
+  drillStats = {correct:0, wrong:0, start:Date.now()};
+  document.getElementById('drill-setup').style.display='none';
+  document.getElementById('drill-results').style.display='none';
+  document.getElementById('drill-active').style.display='block';
+  document.getElementById('q-total').textContent = count;
+  document.getElementById('score-total').textContent = 0;
+  const typeNames = {multiplication:'Multiplication',squares:'Squaring',addition:'Addition',division:'Division'};
+  document.getElementById('drill-type-label').textContent = typeNames[drillType]||'';
+  document.getElementById('q-dots').innerHTML = drillQuestions.map((_,i)=>
+    `<div id="dot-${i}" style="width:10px;height:10px;border-radius:50%;background:var(--surface3)"></div>`).join('');
+  if (timerInterval) clearInterval(timerInterval);
+  drillStart = Date.now();
+  timerInterval = setInterval(updateTimer, 1000);
+  loadDrillQuestion();
+}
+
+function updateTimer() {
+  const e = Math.floor((Date.now()-drillStart)/1000);
+  document.getElementById('timer').textContent = String(Math.floor(e/60)).padStart(2,'0')+':'+String(e%60).padStart(2,'0');
+}
+
+function loadDrillQuestion() {
+  if (drillIdx >= drillQuestions.length) { endDrill(); return; }
+  const q = drillQuestions[drillIdx];
+  document.getElementById('q-num').textContent = drillIdx+1;
+  document.getElementById('drill-question').textContent = q.q;
+  document.getElementById('drill-hint').textContent = q.hint;
+  document.getElementById('drill-ans').value = '';
+  document.getElementById('drill-ans').className = 'drill-input';
+  document.getElementById('drill-result').innerHTML = '';
+  document.getElementById('drill-ans').focus();
+}
+
+function checkAnswer() {
+  const inp = document.getElementById('drill-ans');
+  const val = parseInt(inp.value);
+  const q = drillQuestions[drillIdx];
+  const res = document.getElementById('drill-result');
+  const dot = document.getElementById('dot-'+drillIdx);
+  if (isNaN(val)) { res.innerHTML='<span style="color:var(--ink3)">Please enter a number</span>'; return; }
+  if (val === q.ans) {
+    inp.className='drill-input correct';
+    res.innerHTML=`<span style="color:var(--green)">✓ Correct! Well done! 🎉</span>`;
+    drillCorrect++; drillStats.correct++;
+    if(dot) dot.style.background='var(--green)';
+    document.getElementById('score-correct').textContent = drillCorrect;
+    document.getElementById('score-total').textContent = drillIdx+1;
+    setTimeout(()=>{drillIdx++;loadDrillQuestion();},650);
+  } else {
+    inp.className='drill-input wrong';
+    res.innerHTML=`<span style="color:var(--red)">✗ Answer is ${q.ans} — watch the Visualizer to learn this method!</span>`;
+    drillStats.wrong++;
+    if(dot) dot.style.background='var(--red)';
+    document.getElementById('score-total').textContent = drillIdx+1;
+    setTimeout(()=>{drillIdx++;loadDrillQuestion();},1200);
+  }
+}
+
+function skipQuestion() {
+  const dot = document.getElementById('dot-'+drillIdx);
+  if(dot) dot.style.background='var(--ink3)';
+  drillStats.wrong++; drillIdx++; loadDrillQuestion();
+}
+
+function checkDrillKey(e) { if(e.key==='Enter') checkAnswer(); }
+
+function endDrill() {
+  clearInterval(timerInterval);
+  document.getElementById('drill-active').style.display='none';
+  document.getElementById('drill-results').style.display='block';
+  const total = drillQuestions.length;
+  const pct = Math.round(drillStats.correct/total*100);
+  const elapsed = Math.floor((Date.now()-drillStats.start)/1000);
+  const avg = Math.round(elapsed/total);
+  document.getElementById('r-correct').textContent = drillStats.correct;
+  document.getElementById('r-wrong').textContent = drillStats.wrong;
+  document.getElementById('r-time').textContent = elapsed+'s';
+  document.getElementById('r-avg').textContent = avg+'s';
+  document.getElementById('result-score').textContent = pct+'% Score';
+  document.getElementById('result-emoji').textContent = pct>=90?'🏆':pct>=70?'🎉':pct>=50?'😊':'💪';
+  const msgs = {90:"Outstanding! You're a Vedic Math champion!",70:'Great work! Keep practicing!',50:'Good effort — review the visualizer for techniques.',0:'Never give up — watch the visualizer and retry!'};
+  const key = Object.keys(msgs).reverse().find(k=>pct>=parseInt(k));
+  document.getElementById('result-msg').textContent = msgs[key];
+  document.getElementById('total-done').textContent = (parseInt(document.getElementById('total-done').textContent)||0)+total;
+  const prevBest = document.getElementById('best-score').textContent;
+  if(prevBest==='—'||pct>parseInt(prevBest)) document.getElementById('best-score').textContent=pct+'%';
+}
+
+function resetDrill() {
+  document.getElementById('drill-results').style.display='none';
+  document.getElementById('drill-setup').style.display='block';
+}
+
+// ── VISUALIZER ENGINE ──
+let vizInited = false, currentMethod = 'nikhilam', currentStep = 0, vizSteps = [], autoInt = null;
+let vizInputs = {};
+
+const METHODS = {
+  nikhilam:{title:'Nikhilam — Near Base Multiplication',sutra:'Nikhilam Navataścaramam Daśataḥ — All from 9, last from 10',desc:'Use when both numbers are near a base (10, 100, 1000). Find the deficiency from base, cross-add and multiply deficiencies. Lightning fast for numbers near 100.',inputs:[{label:'Number A',key:'a',def:97},{label:'Number B',key:'b',def:98}],op:'×',
+    steps:v=>{const a=+v.a||97,b=+v.b||98,base=100,da=a-base,db=b-base,left=a+db,right=da*db,rs=String(Math.abs(right)).padStart(2,'0'),ans=a*b;return[
+      {t:'Step 1 — Choose the base',r:()=>`<div class="eq-row" style="justify-content:center;margin-bottom:16px">${nb(a,'nb-lg','Number A')}${sign('×')}${nb(b,'nb-lg','Number B')}</div>${narr(`Both <strong>${a}</strong> and <strong>${b}</strong> are close to <strong>100</strong>. Our base is <strong>100</strong>! 🎯<br><span class="hint">Nikhilam works best when both numbers are near a round base like 10, 100, or 1000.</span>`)}`},
+      {t:'Step 2 — Find deficiencies from base',r:()=>`<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start"><div>${row([nb(a,'nb-md'),sign('−'),nb(base,'nb-sm'),sign('='),nb((da>=0?'+':'')+da,'nb-md '+(da<0?'nb-red':'nb-green'),'Deficiency A')])}${row([nb(b,'nb-md'),sign('−'),nb(base,'nb-sm'),sign('='),nb((db>=0?'+':'')+db,'nb-md '+(db<0?'nb-red':'nb-green'),'Deficiency B')])}</div><div style="flex:1">${narr(`<strong>${a}</strong> is ${Math.abs(da)} ${da<0?'below':'above'} 100 → <strong>${da}</strong><br><strong>${b}</strong> is ${Math.abs(db)} ${db<0?'below':'above'} 100 → <strong>${db}</strong>`)}</div></div>`},
+      {t:'Step 3 — Cross addition (left part)',r:()=>`<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start"><div>${row([nb(a,'nb-md'),sign('+'),nb('('+db+')','nb-sm nb-blue'),sign('='),nb(left,'nb-md nb-gold','Left part')])}${row([nb(b,'nb-md'),sign('+'),nb('('+da+')','nb-sm nb-blue'),sign('='),nb(left,'nb-md nb-gold','Same result!')])}</div><div style="flex:1">${narr(`Cross add: <strong>${a} + (${db}) = ${left}</strong><br>This is the <strong>hundreds part</strong> of our answer.<br><span class="hint">Both ways always give the same result!</span>`)}</div></div>`},
+      {t:'Step 4 — Multiply deficiencies (right part)',r:()=>`<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start"><div>${row([nb('('+da+')','nb-md nb-red'),sign('×'),nb('('+db+')','nb-md nb-red'),sign('='),nb(right,'nb-md nb-purple','Right part (2 digits)')])}</div><div style="flex:1">${narr(`(${da}) × (${db}) = <strong>${right}</strong><br>This becomes the <strong>last 2 digits</strong> of the answer.<br><span class="hint">Right part must be 2 digits — pad with zero if needed.</span>`)}</div></div>`},
+      {t:'Step 5 — Combine for final answer! 🎉',r:()=>`<div style="text-align:center">${row([nb(left,'nb-md nb-gold','Hundreds'),nb('|','eq-sign',''),nb(rs,'nb-md nb-purple','Units'),sign('='),nb(ans,'nb-lg nb-ans anim-glow','✨ Answer!')],true)}${narr(`<strong>${a} × ${b} = ${left}|${rs} = <strong style="color:var(--accent);font-size:15px">${ans}</strong></strong><br><span class="hint">With practice this takes under 3 seconds — entirely in your head! 🚀</span>`)}</div>`},
+    ];},
+    tryGen:()=>{const a=Math.floor(Math.random()*15)+85,b=Math.floor(Math.random()*15)+85;return{q:`${a} × ${b}`,ans:a*b};}
+  },
+  crosswise:{title:'Vertically Crosswise Multiplication',sutra:'Ūrdhva-Tiryagbhyām — Vertically and Crosswise',desc:'The universal multiplication method. Works for any 2-digit numbers. Three steps: units×units, crosswise, tens×tens. Elegant and powerful.',inputs:[{label:'Number A',key:'a',def:34},{label:'Number B',key:'b',def:52}],op:'×',
+    steps:v=>{const a=+v.a||34,b=+v.b||52,a1=Math.floor(a/10),a0=a%10,b1=Math.floor(b/10),b0=b%10,s1=a0*b0,s2=a1*b0+a0*b1,s3=a1*b1,c1=Math.floor(s1/10),u1=s1%10,mid=s2+c1,c2=Math.floor(mid/10),u2=mid%10,h=s3+c2,ans=a*b;return[
+      {t:'Step 1 — Split each number into tens & units',r:()=>`<div style="display:flex;gap:28px;justify-content:center;flex-wrap:wrap">${['A','B'].map((lbl,i)=>`<div style="text-align:center"><div style="font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Number ${lbl}</div><div style="display:flex;gap:6px">${nb([a1,b1][i],'nb-md nb-gold','tens')}${nb([a0,b0][i],'nb-md nb-blue','units')}</div><div style="font-family:var(--ff-m);font-size:18px;color:var(--ink2);margin-top:5px">${[a,b][i]}</div></div>`).join('')}</div>${narr(`<strong>${a}</strong> = <strong>${a1}</strong> tens + <strong>${a0}</strong> units<br><strong>${b}</strong> = <strong>${b1}</strong> tens + <strong>${b0}</strong> units`)}`},
+      {t:'Step 2 — Units × Units (rightmost column)',r:()=>`<div style="display:flex;gap:20px;flex-wrap:wrap">${row([nb(a0,'nb-md nb-blue','U of A'),sign('×'),nb(b0,'nb-md nb-blue','U of B'),sign('='),nb(s1,'nb-md nb-gold','')])}${narr(`${a0} × ${b0} = <strong>${s1}</strong>${s1>=10?`<br>Write <strong style="color:var(--green)">${u1}</strong>, carry <strong style="color:var(--red)">${c1}</strong>`:'<br>This is the units digit'}`)}</div>`},
+      {t:'Step 3 — Cross multiply (tens column)',r:()=>`<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">${row([nb(a1,'nb-sm nb-gold'),sign('×'),nb(b0,'nb-sm nb-blue'),sign('+'),nb(a0,'nb-sm nb-blue'),sign('×'),nb(b1,'nb-sm nb-gold'),sign('='),nb(s2,'nb-sm nb-purple',''),sign('+'),nb(c1,'nb-sm nb-red','carry'),sign('='),nb(mid,'nb-md nb-gold','Tens')])}${narr(`Cross: ${a1}×${b0}+${a0}×${b1} = ${s2}, +carry${c1} = <strong>${mid}</strong>${mid>=10?`<br>Write <strong style="color:var(--green)">${u2}</strong>, carry <strong style="color:var(--red)">${c2}</strong>`:''}`)} </div>`},
+      {t:'Step 4 — Tens × Tens + carry (hundreds)',r:()=>`${row([nb(a1,'nb-sm nb-gold'),sign('×'),nb(b1,'nb-sm nb-gold'),sign('+'),nb(c2,'nb-sm nb-red','carry'),sign('='),nb(h,'nb-md nb-green','Hundreds')])}${narr(`${a1}×${b1}+${c2} = <strong style="color:var(--green)">${h}</strong><br>The leftmost part of our answer.`)}`},
+      {t:'Step 5 — Read the three columns! 🎉',r:()=>`<div style="text-align:center">${row([nb(h,'nb-md nb-green','Hundreds'),nb(u2,'nb-md nb-blue','Tens'),nb(u1,'nb-md nb-gold','Units'),sign('='),nb(ans,'nb-lg nb-ans anim-glow','✨ Answer!')],true)}${narr(`<strong>${a} × ${b} = ${h}${u2}${u1} = <strong style="color:var(--accent);font-size:15px">${ans}</strong></strong><br><span class="hint">Vertically Crosswise works for ANY two numbers!</span>`)}</div>`},
+    ];},
+    tryGen:()=>{const a=Math.floor(Math.random()*80)+11,b=Math.floor(Math.random()*80)+11;return{q:`${a} × ${b}`,ans:a*b};}
+  },
+  base10:{title:'Near 10 Multiplication',sutra:'Ekadhikena Purvena — By one more than the previous',desc:'When numbers are close to 10 (like 7,8,9,11,12). Find deficiency from 10, use cross-add. The perfect starter to understand the base concept.',inputs:[{label:'Number A',key:'a',def:9},{label:'Number B',key:'b',def:8}],op:'×',
+    steps:v=>{const a=+v.a||9,b=+v.b||8,base=10,da=a-base,db=b-base,left=a+db,right=da*db,ans=a*b;return[
+      {t:'Step 1 — Base is 10. Find deficiencies',r:()=>`<div class="eq-row" style="justify-content:center;margin-bottom:14px">${nb(a,'nb-lg','A')}${sign('×')}${nb(b,'nb-lg','B')}</div><div style="display:flex;gap:12px;justify-content:center">${[{n:a,d:da},{n:b,d:db}].map(x=>`<div style="text-align:center">${nb(x.n,'nb-md')}<div style="font-size:11px;color:var(--ink3);margin-top:4px">${x.n} − 10 = <strong style="color:${x.d<0?'var(--red)':'var(--green)'}">${x.d>=0?'+':''}${x.d}</strong></div></div>`).join('')}</div>${narr(`Base = <strong>10</strong>. Deficiency of ${a}: <strong>${da}</strong> | Deficiency of ${b}: <strong>${db}</strong>`)}`},
+      {t:'Step 2 — Cross add (left part)',r:()=>`${row([nb(a,'nb-md'),sign('+'),nb('('+db+')','nb-sm nb-red'),sign('='),nb(left,'nb-md nb-gold','Left (tens)')])}${narr(`A + deficiency of B: <strong>${a} + (${db}) = ${left}</strong><br>This is the <strong>tens digit</strong>.`)}`},
+      {t:'Step 3 — Multiply deficiencies (right part)',r:()=>`${row([nb('('+da+')','nb-md nb-red'),sign('×'),nb('('+db+')','nb-md nb-red'),sign('='),nb(right,'nb-md nb-purple','Right (units)')])}${narr(`(${da}) × (${db}) = <strong>${right}</strong><br>This is the <strong>units digit</strong>.`)}`},
+      {t:'Step 4 — Combine = Answer! 🎉',r:()=>`<div style="text-align:center">${row([nb(left,'nb-md nb-gold','Tens'),nb(right,'nb-md nb-purple','Units'),sign('='),nb(ans,'nb-lg nb-ans anim-glow','✨')],true)}${narr(`<strong>${a} × ${b} = ${left}${right} = <strong style="color:var(--accent)">${ans}</strong></strong>`)}</div>`},
+    ];},
+    tryGen:()=>{const a=Math.floor(Math.random()*5)+7,b=Math.floor(Math.random()*5)+7;return{q:`${a} × ${b}`,ans:a*b};}
+  },
+  square5:{title:'Squares of Numbers Ending in 5',sutra:'Ekadhikena Purvena — By one more than the previous',desc:'Any number ending in 5, squared, always ends in 25. The first part is the tens digit × (tens digit + 1). Instant result — two mental steps!',inputs:[{label:'Number (ends in 5)',key:'a',def:65}],op:'²',
+    steps:v=>{let a=+v.a||65;if(a%10!==5)a=Math.round(a/10)*10+5;const t=Math.floor(a/10),next=t+1,left=t*next,ans=a*a;return[
+      {t:'Step 1 — Identify tens digit',r:()=>`<div class="eq-row" style="justify-content:center;margin-bottom:14px">${nb(a,'nb-lg nb-gold','')}${nb('²','nb-sm','')}</div>${narr(`Our number is <strong>${a}</strong>. Ends in <strong>5</strong> ✓<br>Tens digit = <strong>${t}</strong>`)}`},
+      {t:'Step 2 — Last 2 digits are ALWAYS 25',r:()=>`<div style="text-align:center;margin-bottom:12px">${row([nb('?  ?','nb-md nb-purple','First part'),nb('25','nb-md nb-gold','Last 2 — always!')],true)}</div>${narr(`<strong>Rule: </strong>Any number ending in 5, squared, always ends in <strong style="color:var(--accent)">25</strong>. Remember this forever! 📌`)}`},
+      {t:'Step 3 — Tens digit × (Tens digit + 1)',r:()=>`${row([nb(t,'nb-md nb-gold','Tens'),sign('×'),nb(next,'nb-md nb-green','Tens+1'),sign('='),nb(left,'nb-md nb-gold','First part')])}${narr(`${t} × ${next} = <strong>${left}</strong><br><span class="hint">This is Ekadhikena — multiplying by one more than itself.</span>`)}`},
+      {t:'Step 4 — Write together = Answer! 🎉',r:()=>`<div style="text-align:center">${row([nb(left,'nb-md nb-gold','First part'),nb('25','nb-md nb-purple','Last 2 digits'),sign('='),nb(ans,'nb-lg nb-ans anim-glow','✨ Answer!')],true)}${narr(`<strong>${a}² = ${left}25 = <strong style="color:var(--accent);font-size:15px">${ans}</strong></strong><br><span class="hint">Try 75², 85², 95² — all under 2 seconds! 🚀</span>`)}</div>`},
+    ];},
+    tryGen:()=>{const t=Math.floor(Math.random()*8)+2;return{q:`${t*10+5}²`,ans:(t*10+5)**2};}
+  },
+  yavadunam:{title:'Yavadunam — Square Numbers Near 100',sutra:'Yavadunam Tavadunikritya Varganca Yojayet',desc:'To square a number near 100: add the surplus to the number (left part), then square the surplus (right part). Perfect for 85–115.',inputs:[{label:'Number (near 100)',key:'a',def:97}],op:'²',
+    steps:v=>{const a=+v.a||97,d=a-100,left=a+d,right=d*d,rs=String(Math.abs(right)).padStart(2,'0'),ans=a*a;return[
+      {t:'Step 1 — Find surplus/deficiency from 100',r:()=>`<div class="eq-row" style="justify-content:center;margin-bottom:12px">${nb(a,'nb-lg nb-gold','')}${nb('²','nb-sm','')}</div>${row([nb(a,'nb-md'),sign('−'),nb(100,'nb-sm',''),sign('='),nb((d>=0?'+':'')+d,'nb-md '+(d<0?'nb-red':'nb-green'),'Surplus/Deficiency')])}${narr(`<strong>${a}</strong> is ${Math.abs(d)} ${d<0?'below':'above'} 100. Surplus = <strong>${d}</strong>`)}`},
+      {t:'Step 2 — Left part: Number + surplus',r:()=>`${row([nb(a,'nb-md'),sign('+'),nb('('+d+')','nb-sm '+(d<0?'nb-red':'nb-green'),'surplus'),sign('='),nb(left,'nb-md nb-gold','Left part')])}${narr(`${a} + (${d}) = <strong>${left}</strong> — this is the hundreds part.`)}`},
+      {t:'Step 3 — Right part: Square the surplus',r:()=>`${row([nb('('+d+')','nb-md '+(d<0?'nb-red':'nb-green'),'surplus'),sign('²'),sign('='),nb(right,'nb-md nb-purple',`Right (pad: ${rs})`)]) }${narr(`(${d})² = <strong>${right}</strong><br><span class="hint">Right part must be 2 digits. Pad with leading zero if needed: ${rs}</span>`)}`},
+      {t:'Step 4 — Combine = Answer! 🎉',r:()=>`<div style="text-align:center">${row([nb(left,'nb-md nb-gold','Hundreds'),nb(rs,'nb-md nb-purple','Units (2 dig)'),sign('='),nb(ans,'nb-lg nb-ans anim-glow','✨ Answer!')],true)}${narr(`<strong>${a}² = ${left}|${rs} = <strong style="color:var(--accent);font-size:15px">${ans}</strong></strong><br><span class="hint">Yavadunam is lightning fast for 85–115!</span>`)}</div>`},
+    ];},
+    tryGen:()=>{const d=Math.floor(Math.random()*14)-7;return{q:`${100+d}²`,ans:(100+d)**2};}
+  },
+  div9:{title:'Division by 9 — Digit Sum Method',sutra:'Anurupyena — By proportionality',desc:'Divide any number by 9 by progressively summing digits left to right. Each cumulative digit becomes part of the quotient. No long division needed!',inputs:[{label:'Dividend',key:'a',def:234}],op:'÷ 9',
+    steps:v=>{const a=+v.a||234,digits=[...String(a)].map(Number),q=Math.floor(a/9),r=a%9;return[
+      {t:'Step 1 — Write out the digits',r:()=>`<div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap">${digits.map(d=>nb(d,'nb-md nb-gold')).join('')}</div>${narr(`Dividend = <strong>${a}</strong>. Digits: ${digits.join(' | ')}<br><span class="hint">We work left to right, accumulating as we go.</span>`)}`},
+      {t:'Step 2 — Bring down the first digit',r:()=>`<div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">${digits.map((d,i)=>nb(d,i===0?'nb-md nb-gold':'nb-md')).join('')}</div>${narr(`First digit <strong style="color:var(--accent)">${digits[0]}</strong> starts the quotient.`)}`},
+      {t:'Step 3 — Add each next digit to running total',r:()=>{let run=digits[0];const s=digits.slice(1,-1).map(d=>{const prev=run;run=prev+d;return`<div style="font-size:13px;color:var(--ink2);margin-bottom:4px">${prev} + ${d} = <strong style="color:var(--accent)">${run}</strong></div>`;}).join('');return`<div style="margin-bottom:12px">${s||'<div style="color:var(--ink3);font-size:13px">Only one step</div>'}</div>${narr(`Progressive sum builds the quotient digits.`)}`;}},
+      {t:'Step 4 — Quotient & remainder! 🎉',r:()=>`<div style="text-align:center">${row([nb('Q = '+q,'nb-md nb-gold','Quotient'),nb('R = '+r,'nb-md nb-purple','Remainder')],true)}${narr(`<strong>${a} ÷ 9 = ${q}</strong> remainder <strong>${r}</strong><br><span class="hint">Verify: ${q} × 9 + ${r} = ${q*9+r} ✓</span>`)}</div>`},
+    ];},
+    tryGen:()=>{const q=Math.floor(Math.random()*80)+11;return{q:`${q*9} ÷ 9`,ans:q};}
+  },
+  div11:{title:'Division by 11 — Alternating Method',sutra:'Ekadhikena Purvena',desc:'Alternating digit sum: odd positions minus even positions. If result is 0 or multiple of 11, the number is divisible by 11. Then use the quick quotient pattern.',inputs:[{label:'Dividend',key:'a',def:143}],op:'÷ 11',
+    steps:v=>{const a=+v.a||143,digits=[...String(a)].map(Number),alt=digits.reduce((s,d,i)=>s+(i%2===0?d:-d),0),q=Math.floor(a/11),r=a%11;return[
+      {t:'Step 1 — Write out the digits',r:()=>`<div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px">${digits.map(d=>nb(d,'nb-md nb-gold')).join('')}</div>${narr(`Dividend = <strong>${a}</strong>. We'll use alternating signs.`)}`},
+      {t:'Step 2 — Apply alternating + and − signs',r:()=>`<div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:12px">${digits.map((d,i)=>`${i>0?`<span class="eq-sign" style="font-size:20px">${i%2===0?'+':'-'}</span>`:'' }${nb(d,'nb-sm '+(i%2===0?'nb-green':'nb-red'),i%2===0?'+':'-')}`).join('')}</div>${narr(`Alternating sum: ${digits.map((d,i)=>(i%2===0?'+':'-')+d).join(' ')} = <strong>${alt}</strong><br>${Math.abs(alt)%11===0?'<strong style="color:var(--green)">Divisible by 11! ✓</strong>':'<span style="color:var(--red)">Not cleanly divisible by 11</span>'}`)}`},
+      {t:'Step 3 — Compute quotient & remainder',r:()=>`${row([nb(a,'nb-md'),sign('÷'),nb(11,'nb-sm nb-gold',''),sign('='),nb(q,'nb-md nb-green','Quotient'),sign(' R '),nb(r,'nb-md nb-purple','Remainder')])}${narr(`<strong>${a} ÷ 11 = ${q}</strong> remainder <strong>${r}</strong>`)}`},
+      {t:'Step 4 — Verified! 🎉',r:()=>`<div style="text-align:center">${row([nb('Q='+q,'nb-md nb-gold','Quotient'),nb('R='+r,'nb-md nb-purple','Remainder')],true)}${narr(`Verify: ${q} × 11 + ${r} = <strong>${q*11+r}</strong> ✓`)}</div>`},
+    ];},
+    tryGen:()=>{const q=Math.floor(Math.random()*50)+10;return{q:`${q*11} ÷ 11`,ans:q};}
+  },
+  complement:{title:'Complement Method — Fast Addition',sutra:'Pūraṇāpūraṇābhyām — By the completion or non-completion',desc:'When adding numbers near 100, round up to 100, add, then subtract the complements. Turns messy addition into clean mental math.',inputs:[{label:'Number A',key:'a',def:97},{label:'Number B',key:'b',def:86}],op:'+',
+    steps:v=>{const a=+v.a||97,b=+v.b||86,ca=100-a,cb=100-b,ans=a+b;return[
+      {t:'Step 1 — Find complements from 100',r:()=>`<div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">${[[a,ca],[b,cb]].map(([n,c])=>`<div>${row([nb(n,'nb-md'),sign('→'),nb('100−'+n,'nb-sm nb-blue',''),sign('='),nb(c,'nb-sm nb-red','Complement')])}</div>`).join('')}</div>${narr(`Complement of ${a} = <strong>${ca}</strong><br>Complement of ${b} = <strong>${cb}</strong>`)}`},
+      {t:'Step 2 — Round both up: 100 + 100 = 200',r:()=>`${row([nb(100,'nb-md nb-gold',''),sign('+'),nb(100,'nb-md nb-gold',''),sign('='),nb(200,'nb-md nb-gold','Start point')])}${narr(`Round both to 100. Start point = <strong>200</strong>.`)}`},
+      {t:'Step 3 — Subtract both complements',r:()=>`${row([nb(200,'nb-md nb-gold',''),sign('−'),nb(ca,'nb-sm nb-red','comp A'),sign('−'),nb(cb,'nb-sm nb-red','comp B'),sign('='),nb(ans,'nb-lg nb-ans anim-glow','✨ Answer!')])}${narr(`200 − ${ca} − ${cb} = <strong style="color:var(--accent);font-size:15px">${ans}</strong><br><span class="hint">We added extra so we subtract it back. Elegant!</span>`)}`},
+      {t:'Step 4 — That\'s your answer! 🎉',r:()=>`<div style="text-align:center">${nb(ans,'nb-lg nb-ans anim-glow','✨ Answer!')}${narr(`<strong>${a} + ${b} = ${ans}</strong><br><span class="hint">Works for any two numbers near 100. Instantly mental!</span>`)}</div>`},
+    ];},
+    tryGen:()=>{const a=Math.floor(Math.random()*20)+80,b=Math.floor(Math.random()*20)+80;return{q:`${a} + ${b}`,ans:a+b};}
+  },
+};
+
+// Helpers
+function nb(val,cls,label=''){
+  return `<div style="display:inline-flex;flex-direction:column;align-items:center;gap:3px">
+    <div class="nb ${cls} anim-pop">${val}</div>
+    ${label?`<div class="eq-label">${label}</div>`:''}
+  </div>`;}
+function sign(s){return `<div class="eq-sign" style="font-size:${s.length>2?'16px':'24px'};padding:0 2px">${s}</div>`;}
+function row(items,center=false){return `<div class="eq-row${center?' style="justify-content:center"':''}" style="margin-bottom:12px">${items.join('')}</div>`;}
+function narr(html){return `<div class="narr anim-fade">${html}</div>`;}
+
+function loadMethod(key, btn) {
+  currentMethod = key;
+  currentStep = 0;
+  if (autoInt) { clearInterval(autoInt); autoInt=null; document.getElementById('auto-btn').textContent='▶ Auto'; }
+  document.querySelectorAll('.vs-item').forEach(b=>b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const m = METHODS[key];
+  vizInputs = {};
+  m.inputs.forEach(f => vizInputs[f.key]=f.def);
+  document.getElementById('ip-panel').innerHTML=`
+    <div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:12px">Enter your numbers:</div>
+    <div class="ip-row">
+      ${m.inputs.map(f=>`<div class="ip-field"><div class="ip-label">${f.label}</div><input class="ip-input" type="number" id="vip-${f.key}" value="${f.def}" oninput="vizInputs['${f.key}']=this.value"></div>`).join(`<div class="ip-op">${m.op}</div>`)}
+      <button class="ip-btn" onclick="buildViz()">Visualize →</button>
+    </div>`;
+  document.getElementById('m-desc').innerHTML=`
+    <div class="m-sutra-lbl">${m.sutra.split('—')[0].trim()}</div>
+    <div class="m-title">${m.title}</div>
+    <div class="m-body">${m.desc}</div>`;
+  buildViz();
+}
+
+function buildViz() {
+  const m = METHODS[currentMethod];
+  m.inputs.forEach(f=>{const el=document.getElementById('vip-'+f.key);if(el)vizInputs[f.key]=el.value;});
+  vizSteps = m.steps(vizInputs);
+  currentStep = 0;
+  renderStep();
+  buildTry();
+}
+
+function renderStep() {
+  const s = vizSteps[currentStep];
+  document.getElementById('stage').innerHTML = s.r();
+  document.getElementById('vc-step-title').textContent = s.t;
+  const pct=((currentStep+1)/vizSteps.length*100).toFixed(0);
+  document.getElementById('vc-prog').style.width=pct+'%';
+  document.getElementById('prev-btn').disabled=currentStep===0;
+  document.getElementById('next-btn').textContent=currentStep===vizSteps.length-1?'✓ Done':'Next →';
+}
+
+function nextStep(){if(currentStep<vizSteps.length-1){currentStep++;renderStep();}}
+function prevStep(){if(currentStep>0){currentStep--;renderStep();}}
+
+function autoPlay(){
+  const btn=document.getElementById('auto-btn');
+  if(autoInt){clearInterval(autoInt);autoInt=null;btn.textContent='▶ Auto';return;}
+  btn.textContent='⏸ Pause';
+  const spd=parseInt(document.getElementById('spd-sel').value);
+  autoInt=setInterval(()=>{
+    if(currentStep<vizSteps.length-1){currentStep++;renderStep();}
+    else{clearInterval(autoInt);autoInt=null;btn.textContent='▶ Auto';}
+  },spd);
+}
+
+function buildTry(){
+  const m=METHODS[currentMethod];
+  const ps=Array.from({length:3},()=>m.tryGen());
+  document.getElementById('try-panel').innerHTML=`
+    <div class="try-title">✏️ Try it yourself — apply the method!</div>
+    ${ps.map((p,i)=>`<div class="try-row">
+      <div class="try-q">${p.q} =</div>
+      <input class="try-input" id="ti-${i}" type="number" placeholder="?" data-ans="${p.ans}" onkeydown="chkTry(event,${i},${p.ans})">
+      <button onclick="chkTry(null,${i},${p.ans})" class="tb-btn" style="padding:6px 12px">Check</button>
+      <div style="font-size:12px;min-height:18px" id="tr-${i}"></div>
+    </div>`).join('')}`;
+}
+
+function chkTry(e,i,ans){
+  if(e&&e.key!=='Enter')return;
+  const inp=document.getElementById('ti-'+i);
+  const res=document.getElementById('tr-'+i);
+  const val=parseInt(inp.value);
+  if(isNaN(val))return;
+  if(val===ans){inp.className='try-input ok';res.innerHTML=`<span style="color:var(--green)">✓ Correct! 🎉</span>`;}
+  else{inp.className='try-input err';res.innerHTML=`<span style="color:var(--ink3)">Answer: <strong style="color:var(--accent)">${ans}</strong></span>`;setTimeout(()=>inp.className='try-input',2000);}
+}
+</script>
+</body>
+</html>
